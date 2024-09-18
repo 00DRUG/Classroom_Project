@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Homework Calendar</h1>
+
+<ul>
+    {% for homework in homeworks %}
+    <li>
+        <strong>{{ homework.title }}</strong><br>
+        Due: {{ homework.due_date }}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

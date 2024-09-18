@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Student Dashboard</h1>
+
+<h2>Your Current Homework</h2>
+<ul>
+    {% for item in homework_data %}
+    <li>
+        <strong>{{ item.homework.title }}</strong><br>
+        {{ item.homework.description }}<br>
+        Due: {{ item.homework.due_date }}<br>
+        
+        {% if item.submission %}
+            <!-- Show submission info -->
+            <strong>Submitted on:</strong> {{ item.submission.submitted_on }}<br>
+            <strong>Marks:</strong> {{ item.submission.marks }}<br>
+            <strong>Comments:</strong> {{ item.submission.comments }}<br>
+            <strong>Status:</strong> {{ item.submission.get_status_display }}<br>
+            
+            {% if item.submission.status == 'returned' %}
+                <!-- Allow resubmission if the status is 'returned' -->
+                <a href="{% url 'upload_submission' item.homework.id %}" class="btn btn-primary">Resubmit Homework</a>
+            {% else %}
+                <button class="btn btn-secondary" disabled>Homework {{ item.submission.get_status_display }}</button>
+            {% endif %}
+        {% else %}
+            <!-- Show the upload button if no submission has been made -->
+            <a href="{% url 'upload_submission' item.homework.id %}" class="btn btn-primary">Upload Homework</a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+<h2>Your Previous Submissions</h2>
+<ul>
+    {% for submission in submissions %}
+    {% if submission.status == 'graded' %}
+    <li>
+        <strong>{{ submission.homework.title }}</strong><br>
+        Submitted on: {{ submission.submitted_on }}<br>
+        Marks: {{ submission.marks }}<br>
+        Comments: {{ submission.comments }}<br>
+        Status: Graded
+    </li>
+    {% endif %}
+    {% endfor %}
+</ul>
+
+{% endblock %}

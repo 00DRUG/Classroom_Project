@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Teacher Dashboard</h1>
+
+<h2>Your Homework</h2>
+<ul>
+    {% for homework in homeworks %}
+    <li>
+        <strong>{{ homework.title }}</strong><br>
+        Due: {{ homework.due_date }}<br>
+        {% if homework.file %}
+            <a href="{{ homework.file.url }}">Download Homework File</a><br>
+        {% endif %}
+        <a href="{% url 'view_submissions' homework.id %}">View Submissions</a>
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'add_homework' %}">Add New Homework</a>
+{% endblock %}
