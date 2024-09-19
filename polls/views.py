@@ -134,7 +134,6 @@ def homework_calendar(request):
 
 @login_required
 def profile_view(request, user_id):
-    # Get the user profile based on the ID
     user = get_object_or_404(CustomUser, id=user_id)
     return render(request, 'profile.html', {'user': user})
 @login_required
@@ -179,13 +178,15 @@ def view_submissions(request, homework_id):
 
     return render(request, 'view_submissions.html', {'homework': homework, 'submissions': submissions})
 
+
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        form = ProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('profile_view', user_id=request.user.id)
+            # Pass the user_id when redirecting to the profile_view
+            return redirect('profile_view', user_id=request.user.id)  # Redirect to profile with user_id
     else:
         form = ProfileForm(instance=request.user)
 

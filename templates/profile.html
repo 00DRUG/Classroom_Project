@@ -1,27 +1,30 @@
 {% extends 'base.html' %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'styles/profile.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/profile_card.css' %}">
 {% block content %}
-<h1>
-    {{ user.get_full_name }}
-    <small class="text-muted">
-        {% if user.is_student %}
-            (Student)
-        {% elif user.is_teacher %}
-            (Teacher)
+<div class="profile-card">
+    <div class="profile-image">
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}">
+        {% else %}
+            <img src="{% static 'images/default_profile.png' %}" alt="No profile picture">
         {% endif %}
-    </small>
-</h1>
+    </div>
 
-<div class="profile">
-    {% if user.profile_picture %}
-        <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="profile-picture">
-    {% else %}
-        <p>No profile picture available</p>
-    {% endif %}
+    <div class="profile-details">
+        <h2>{{ user.get_full_name }}</h2>
+        <p class="role">
+            {% if user.is_student %}
+                Student
+            {% elif user.is_teacher %}
+                Teacher
+            {% endif %}
+        </p>
+        <p class="bio">{{ user.bio }}</p>
 
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Bio:</strong> {{ user.bio }}</p>
-    <p><strong>Age:</strong> {{ user.age }}</p>
+        <p><strong>Age:</strong> {{ user.age }}</p>
+
+       <a href="{% url 'edit_profile' %}" class="action-btn">Edit Profile</a>
+    </div>
 </div>
 {% endblock %}
