@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <h1>Student Dashboard</h1>
+
 
 <h2>Your Current Homework</h2>
 <ul>
@@ -11,15 +11,21 @@
         {{ item.homework.description }}<br>
         Due: {{ item.homework.due_date }}<br>
         
+        <p>
+            Assigned by: 
+            <a href="{% url 'profile_view' item.homework.teacher.id %}">
+                {{ item.homework.teacher.get_full_name }}
+            </a>
+        </p>
+
         {% if item.submission %}
             <!-- Show submission info -->
             <strong>Submitted on:</strong> {{ item.submission.submitted_on }}<br>
             <strong>Marks:</strong> {{ item.submission.marks }}<br>
             <strong>Comments:</strong> {{ item.submission.comments }}<br>
             <strong>Status:</strong> {{ item.submission.get_status_display }}<br>
-            
-            {% if item.submission.status == 'returned' %}
-                <!-- Allow resubmission if the status is 'returned' -->
+
+            {% if item.submission.status == 'returned' and item.resubmission_allowed %}
                 <a href="{% url 'upload_submission' item.homework.id %}" class="btn btn-primary">Resubmit Homework</a>
             {% else %}
                 <button class="btn btn-secondary" disabled>Homework {{ item.submission.get_status_display }}</button>
@@ -31,6 +37,11 @@
     </li>
     {% endfor %}
 </ul>
+
+<!-- Show message if no homework is available -->
+{% if homework_data|length == 0 %}
+    <p>No homework available for you right now.</p>
+{% endif %}
 
 <h2>Your Previous Submissions</h2>
 <ul>

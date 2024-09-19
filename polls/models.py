@@ -2,12 +2,16 @@
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils import timezone
 from django.conf import settings
+from django.utils import timezone
+
+
 class CustomUser(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
     age = models.IntegerField(null=True, blank=True)  # Add age field here
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
 
     # You can add more fields as needed
     # For example: profile picture, address, etc.
@@ -16,18 +20,14 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-from django.db import models
-from django.conf import settings
-from django.utils import timezone
-
-
 class Homework(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     assigned_date = models.DateField(default=timezone.now)
     due_date = models.DateField()
-    file = models.FileField(upload_to='homework_files/', null=True, blank=True)  # Teachers can upload files
+    file = models.FileField(upload_to='homework_files/', null=True, blank=True)
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='homeworks')
+    students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='homework_assigned')  # Link to students
 
     def __str__(self):
         return self.title
@@ -35,9 +35,9 @@ class Homework(models.Model):
 
 class Submission(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),            # Homework submitted, waiting for grading
-        ('returned', 'Returned for redo'), # Returned for resubmission
-        ('graded', 'Graded'),              # Graded by the teacher
+        ('pending', 'Pending'),  # Homework submitted, waiting for grading
+        ('returned', 'Returned for redo'),  # Returned for resubmission
+        ('graded', 'Graded'),  # Graded by the teacher
     ]
 
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='submissions')

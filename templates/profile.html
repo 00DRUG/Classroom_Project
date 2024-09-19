@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'styles/profile.css' %}">
+{% block content %}
+<h1>
+    {{ user.get_full_name }}
+    <small class="text-muted">
+        {% if user.is_student %}
+            (Student)
+        {% elif user.is_teacher %}
+            (Teacher)
+        {% endif %}
+    </small>
+</h1>
+
+<div class="profile">
+    {% if user.profile_picture %}
+        <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="profile-picture">
+    {% else %}
+        <p>No profile picture available</p>
+    {% endif %}
+
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Bio:</strong> {{ user.bio }}</p>
+    <p><strong>Age:</strong> {{ user.age }}</p>
+</div>
+{% endblock %}
