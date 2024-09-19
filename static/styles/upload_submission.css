@@ -1,0 +1,44 @@
+/* Homework Submission Form Styling */
+.submission-form-container {
+    background-color: #f0f4f8;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.submission-form-container h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #003366;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.submission-form-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.submission-form-container input[type="file"] {
+    border: 1px solid #005b96;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.submission-form-container button[type="submit"] {
+    background-color: #005b96;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submission-form-container button[type="submit"]:hover {
+    background-color: #003366;
+}

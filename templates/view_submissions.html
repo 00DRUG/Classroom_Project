@@ -1,20 +1,18 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <h1>Submissions for {{ homework.title }}</h1>
-
-<ul>
+<div class="submissions-list-container">
     {% for submission in submissions %}
-    <li>
-        <strong>{{ submission.student.username }}</strong> - Submitted on: {{ submission.submitted_on }}<br>
-        <a href="{{ submission.file.url }}">Download Submission</a><br>
-        <strong>Marks:</strong> {{ submission.marks }}<br>
-        <strong>Comments:</strong> {{ submission.comments }}<br>
-        <strong>Resubmission Allowed:</strong> {{ submission.allow_resubmission|yesno:"Yes,No" }}<br>
+    <div class="submission-card">
+        <h2>{{ submission.student.username }}</h2>
+        <p>Submitted on: {{ submission.submitted_on }}</p>
+        <p><a href="{{ submission.file.url }}">Download Submission</a></p>
+        <p><strong>Marks:</strong> {{ submission.marks }}</p>
+        <p><strong>Comments:</strong> {{ submission.comments }}</p>
+        <p><strong>Resubmission Allowed:</strong> {{ submission.allow_resubmission|yesno:"Yes,No" }}</p>
         <a href="{% url 'give_feedback' submission.id %}">Give Feedback</a>
-    </li>
+    </div>
     {% endfor %}
-</ul>
-
+</div>
 <a href="{% url 'delete_homework' homework.id %}" class="btn btn-danger">Delete Homework</a>
 {% endblock %}

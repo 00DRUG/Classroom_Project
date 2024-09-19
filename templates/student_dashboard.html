@@ -1,29 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Student Dashboard</h1>
-
 
 <h2>Your Current Homework</h2>
-<ul>
+
+<div class="assignment-list">
     {% for item in homework_data %}
-    <li>
-        <strong>{{ item.homework.title }}</strong><br>
-        {{ item.homework.description }}<br>
-        Due: {{ item.homework.due_date }}<br>
+    <div class="assignment-block">
+        <h3>{{ item.homework.title }}</h3>
+        <p>{{ item.homework.description }}</p>
+        <p><strong>Due:</strong> {{ item.homework.due_date }}</p>
         
         <p>
-            Assigned by: 
+            <strong>Assigned by:</strong> 
             <a href="{% url 'profile_view' item.homework.teacher.id %}">
                 {{ item.homework.teacher.get_full_name }}
             </a>
         </p>
 
         {% if item.submission %}
-            <!-- Show submission info -->
-            <strong>Submitted on:</strong> {{ item.submission.submitted_on }}<br>
-            <strong>Marks:</strong> {{ item.submission.marks }}<br>
-            <strong>Comments:</strong> {{ item.submission.comments }}<br>
-            <strong>Status:</strong> {{ item.submission.get_status_display }}<br>
+            <p><strong>Submitted on:</strong> {{ item.submission.submitted_on }}</p>
+            <p><strong>Marks:</strong> {{ item.submission.marks }}</p>
+            <p><strong>Comments:</strong> {{ item.submission.comments }}</p>
+            <p><strong>Status:</strong> {{ item.submission.get_status_display }}</p>
 
             {% if item.submission.status == 'returned' and item.resubmission_allowed %}
                 <a href="{% url 'upload_submission' item.homework.id %}" class="btn btn-primary">Resubmit Homework</a>
@@ -31,31 +29,30 @@
                 <button class="btn btn-secondary" disabled>Homework {{ item.submission.get_status_display }}</button>
             {% endif %}
         {% else %}
-            <!-- Show the upload button if no submission has been made -->
             <a href="{% url 'upload_submission' item.homework.id %}" class="btn btn-primary">Upload Homework</a>
         {% endif %}
-    </li>
+    </div>
     {% endfor %}
-</ul>
+</div>
 
-<!-- Show message if no homework is available -->
 {% if homework_data|length == 0 %}
     <p>No homework available for you right now.</p>
 {% endif %}
 
 <h2>Your Previous Submissions</h2>
-<ul>
+
+<div class="assignment-list">
     {% for submission in submissions %}
     {% if submission.status == 'graded' %}
-    <li>
-        <strong>{{ submission.homework.title }}</strong><br>
-        Submitted on: {{ submission.submitted_on }}<br>
-        Marks: {{ submission.marks }}<br>
-        Comments: {{ submission.comments }}<br>
-        Status: Graded
-    </li>
+    <div class="assignment-block">
+        <h3>{{ submission.homework.title }}</h3>
+        <p><strong>Submitted on:</strong> {{ submission.submitted_on }}</p>
+        <p><strong>Marks:</strong> {{ submission.marks }}</p>
+        <p><strong>Comments:</strong> {{ submission.comments }}</p>
+        <p><strong>Status:</strong> Graded</p>
+    </div>
     {% endif %}
     {% endfor %}
-</ul>
+</div>
 
 {% endblock %}

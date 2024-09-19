@@ -10,15 +10,27 @@
     <link rel="stylesheet" type="text/css" href="{% static 'styles/base/sidebar.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'styles/base/content.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'styles/base/elements.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'styles/profile_card.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/profile_card.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/dashboard.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/view_submissions.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/upload_submission.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/give_feedback.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/add_homework.css' %}">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand" href="#">Classroom</a>
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="{% static 'images/logo.png' %}" alt="Classroom Logo" class="navbar-logo">
+                <span class="ms-2">Classroom</span>
+            </a>
+
+            <!-- Toggler button for mobile views -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            <!-- Navbar links -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <!-- Existing links -->
@@ -34,12 +46,10 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'profile_view' user.id %}">Profile</a>
                         </li>
-
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
                     {% else %}
-                        <!-- Show login link if not authenticated -->
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">Login</a>
                         </li>
@@ -51,7 +61,7 @@
 
     <div class="container">
         {% block content %}
-        <!-- Child templates will inject their content here -->
+
         {% endblock %}
     </div>
 
