@@ -11,17 +11,17 @@ def unified_login(request):
         username = request.POST['username']
         password = request.POST['password']
         user_role = request.POST['role']
-        remember_me = request.POST.get('remember_me', False)  # Get the Remember Me checkbox value
+        remember_me = request.POST.get('remember_me', False)
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
             if (user_role == 'student' and user.is_student) or (user_role == 'teacher' and user.is_teacher):
                 login(request, user)
 
-                if remember_me:  # If remember me is checked, set the session expiry to 30 days
-                    request.session.set_expiry(60 * 60 * 24 * 30)  # 30 days
+                if remember_me:
+                    request.session.set_expiry(60 * 60 * 24 * 30)
                 else:
-                    request.session.set_expiry(0)  # Browser session only
+                    request.session.set_expiry(0)
 
                 if user_role == 'student':
                     return redirect('student_dashboard')
@@ -36,9 +36,9 @@ def teacher_dashboard(request):
 @login_required
 def student_dashboard(request):
     if not request.user.is_student:
-        return redirect('teacher_dashboard')  # Redirect teachers to their dashboard
+        return redirect('teacher_dashboard')
 
-    # Get all homework assigned to the logged-in student and still active
+
     homeworks = Homework.objects.filter(students=request.user, due_date__gte=datetime.now())
 
     print(f"Number of homeworks fetched for student {request.user.username}: {homeworks.count()}")  # Debugging line
@@ -67,20 +67,20 @@ def student_dashboard(request):
 def upload_submission(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id)
 
-    # Ensure only students can submit homework
+
     if not request.user.is_student:
         return redirect('teacher_dashboard')
 
-    # Try to get the existing submission for this homework by the current student
+
     submission, created = Submission.objects.get_or_create(homework=homework, student=request.user)
 
     if request.method == 'POST':
         form = SubmissionForm(request.POST, request.FILES, instance=submission)
         if form.is_valid():
             new_submission = form.save(commit=False)
-            new_submission.submitted_on = datetime.now()  # Update the submission time to now
-            new_submission.status = 'pending'  # Set status to 'pending' after resubmission
-            new_submission.allow_resubmission = False  # Reset resubmission permission after submission
+            new_submission.submitted_on = datetime.now()
+            new_submission.status = 'pending'
+            new_submission.allow_resubmission = False
             new_submission.save()
 
             return redirect('student_dashboard')
@@ -92,9 +92,8 @@ def upload_submission(request, homework_id):
 
 @login_required
 def teacher_dashboard(request):
-    # Ensure that only teachers can access the teacher dashboard
     if not request.user.is_teacher:
-        return redirect('student_dashboard')  # Redirect students to their dashboard
+        return redirect('student_dashboard')
 
     # Get all homework created by the teacher
     homeworks = Homework.objects.filter(teacher=request.user)
@@ -114,11 +113,11 @@ def add_homework(request):
         form = HomeworkForm(request.POST, request.FILES)
         if form.is_valid():
             homework = form.save(commit=False)
-            homework.teacher = request.user  # Assign the logged-in teacher
+            homework.teacher = request.user
             homework.save()
-            form.save_m2m()  # Save the many-to-many relationships (assigned students)
+            form.save_m2m()
 
-            print(f"Assigned to students: {homework.students.all()}")  # Debugging line
+
 
             return redirect('teacher_dashboard')
     else:
@@ -145,11 +144,10 @@ def give_feedback(request, submission_id):
         if form.is_valid():
             feedback = form.save(commit=False)
 
-            # If resubmission is allowed, mark the submission as "returned"
             if feedback.allow_resubmission:
                 feedback.status = 'returned'
             else:
-                feedback.status = 'graded'  # If no resubmission is allowed, mark as graded
+                feedback.status = 'graded'
 
             feedback.save()
             return redirect('view_submissions', homework_id=submission.homework.id)
@@ -174,7 +172,7 @@ def view_submissions(request, homework_id):
         return redirect('student_dashboard')
 
     homework = get_object_or_404(Homework, id=homework_id, teacher=request.user)
-    submissions = Submission.objects.filter(homework=homework)  # Fetch all student submissions for this homework
+    submissions = Submission.objects.filter(homework=homework)
 
     return render(request, 'view_submissions.html', {'homework': homework, 'submissions': submissions})
 
@@ -185,8 +183,7 @@ def edit_profile(request):
         form = ProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            # Pass the user_id when redirecting to the profile_view
-            return redirect('profile_view', user_id=request.user.id)  # Redirect to profile with user_id
+            return redirect('profile_view', user_id=request.user.id)
     else:
         form = ProfileForm(instance=request.user)
 
@@ -202,6 +199,6 @@ def homework_calendar_view(request):
         homeworks = []
 
     context = {
-        'homeworks': homeworks,  # Pass homeworks to the template
+        'homeworks': homeworks,
     }
     return render(request, 'homework_calendar.html', context)

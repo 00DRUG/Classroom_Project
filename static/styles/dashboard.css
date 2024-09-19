@@ -1,10 +1,10 @@
-/* Common style for assignment blocks */
+
 .assignment-block {
-    background-color: #f0f4f8; /* Light background color for the blocks */
+    background-color: #f0f4f8;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px; /* Space between blocks */
+    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -12,7 +12,7 @@
 
 .assignment-block h3 {
     font-size: 22px;
-    color: #003366; /* Darker blue for title */
+    color: #003366;
 }
 
 .assignment-block p {
@@ -21,7 +21,7 @@
 }
 
 .assignment-block strong {
-    color: #005b96; /* Slightly darker text for labels */
+    color: #005b96;
 }
 
 .assignment-block a {
@@ -33,26 +33,26 @@
     text-decoration: underline;
 }
 
-/* Grid Layout to organize blocks line by line */
+
 .assignment-list {
     display: grid;
-    grid-template-columns: 1fr; /* Single column on mobile */
+    grid-template-columns: 1fr;
     grid-gap: 20px;
 }
 
 @media (min-width: 768px) {
     .assignment-list {
-        grid-template-columns: repeat(2, 1fr); /* Two columns for wider screens */
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (min-width: 1024px) {
     .assignment-list {
-        grid-template-columns: repeat(3, 1fr); /* Three columns for even larger screens */
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
-/* Button styling */
+
 .assignment-block .btn {
     background-color: #005b96;
     color: white;

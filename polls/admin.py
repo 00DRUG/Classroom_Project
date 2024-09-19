@@ -7,37 +7,37 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 
-# Custom form to create users with additional fields
+
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = ('username', 'email', 'is_student', 'is_teacher', 'age')  # Add custom fields here
+        fields = ('username', 'email', 'is_student', 'is_teacher', 'age')
 
 
-# Custom form to change users with additional fields
+
 class CustomUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
         model = CustomUser
-        fields = ('username', 'email', 'is_student', 'is_teacher', 'age')  # Add custom fields here
+        fields = ('username', 'email', 'is_student', 'is_teacher', 'age')
 
 
-# Custom UserAdmin to handle CustomUser
+
 class CustomUserAdmin(UserAdmin):
-    add_form = CustomUserCreationForm  # The form used to create a new user
-    form = CustomUserChangeForm  # The form used to change an existing user
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
     model = CustomUser
 
-    # Specify the fields to display in the Django admin interface
+
     list_display = ['username', 'email', 'is_student', 'is_teacher', 'age', 'is_staff', 'is_superuser']
 
-    # Fields to show in the User edit form in the admin
+
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('is_student', 'is_teacher', 'age')}),  # Add custom fields here
+        (None, {'fields': ('is_student', 'is_teacher', 'age')}),
     )
 
     # Fields to show when adding a new User
     add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {'fields': ('email', 'is_student', 'is_teacher', 'age')}),  # Add custom fields here
+        (None, {'fields': ('email', 'is_student', 'is_teacher', 'age')}),
     )
 
 

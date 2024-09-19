@@ -6,7 +6,6 @@
     <title>Unified Login</title>
     <link rel="stylesheet" type="text/css" href="{% static 'styles/login.css' %}">
     <script>
-        // Function to toggle role selection
         function setRole(role) {
             document.getElementById('role').value = role;
             document.getElementById('student-btn').classList.toggle('active', role === 'student');
@@ -28,7 +27,7 @@
     <div class="container">
         <h1>Login</h1>
 
-        <!-- Toggle between student and teacher roles -->
+
         <div class="toggle-role">
             <button type="button" id="student-btn" onclick="setRole('student')">Student</button>
             <button type="button" id="teacher-btn" onclick="setRole('teacher')">Teacher</button>
@@ -38,7 +37,7 @@
             {% csrf_token %}
             <input type="hidden" name="role" id="role" value="">
 
-            <!-- Username and Password Fields -->
+
             <div class="form-group">
                 <input type="text" name="username" placeholder="Username" required>
             </div>
@@ -46,13 +45,12 @@
                 <input type="password" name="password" placeholder="Password" required>
             </div>
 
-            <!-- Remember Me Checkbox -->
             <div class="form-group form-check">
                 <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
                 <label class="form-check-label" for="remember_me">Remember Me</label>
             </div>
 
-            <!-- Login Button -->
+
             <button type="submit">Login</button>
         </form>
     </div>

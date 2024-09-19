@@ -7,7 +7,7 @@ from .models import Homework
 class HomeworkForm(forms.ModelForm):
     class Meta:
         model = Homework
-        fields = ['title', 'description', 'assigned_date', 'due_date', 'file', 'students']  # Add 'students' field
+        fields = ['title', 'description', 'assigned_date', 'due_date', 'file', 'students']
     students = forms.ModelMultipleChoiceField(queryset=CustomUser.objects.filter(is_student=True), required=True, widget=forms.CheckboxSelectMultiple)
 
 class SubmissionForm(forms.ModelForm):
@@ -15,7 +15,7 @@ class SubmissionForm(forms.ModelForm):
         model = Submission
         fields = ['file']
 
-# Form for teacher to provide feedback
+
 class FeedbackForm(forms.ModelForm):
     class Meta:
         model = Submission

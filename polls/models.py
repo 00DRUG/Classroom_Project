@@ -13,8 +13,7 @@ class CustomUser(AbstractUser):
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
 
-    # You can add more fields as needed
-    # For example: profile picture, address, etc.
+
 
     def __str__(self):
         return self.username
@@ -35,9 +34,9 @@ class Homework(models.Model):
 
 class Submission(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),  # Homework submitted, waiting for grading
-        ('returned', 'Returned for redo'),  # Returned for resubmission
-        ('graded', 'Graded'),  # Graded by the teacher
+        ('pending', 'Pending'),
+        ('returned', 'Returned for redo'),  #
+        ('graded', 'Graded'),
     ]
 
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='submissions')

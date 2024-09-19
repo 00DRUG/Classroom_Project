@@ -1,4 +1,4 @@
-/* General styling for body and layout */
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f0f4f8;
@@ -24,7 +24,7 @@ h1 {
 .toggle-role {
     display: flex;
     justify-content: center;
-    margin-bottom: -5px; /* Adjusts the spacing between buttons and the form */
+    margin-bottom: -5px;
 }
 
 .toggle-role button {
@@ -53,14 +53,14 @@ h1 {
     outline: none;
 }
 
-/* Styling the login form */
+
 form {
     background-color: #ffffff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    margin-top: 30px; /* Moves form below the toggle buttons */
+    margin-top: 30px;
 }
 
 input[type="text"], input[type="password"] {
