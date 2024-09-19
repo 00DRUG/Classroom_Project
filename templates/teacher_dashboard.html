@@ -1,3 +1,4 @@
+# teacher_dashboard.html
 {% extends 'base.html' %}
 
 {% block content %}
@@ -8,8 +9,15 @@
     <div class="assignment-block">
         <h3>{{ homework.title }}</h3>
         <p><strong>Due:</strong> {{ homework.due_date }}</p>
-        {% if homework.file %}
-            <a href="{{ homework.file.url }}">Download Homework File</a>
+        {% if homework.group %}
+            <p><strong>Assigned to group:</strong> {{ homework.group.name }}</p>
+        {% endif %}
+        {% if homework.students.all %}
+            <p><strong>Assigned to students:</strong> 
+                {% for student in homework.students.all %}
+                    {{ student.get_full_name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
         {% endif %}
         <a href="{% url 'view_submissions' homework.id %}" class="btn btn-primary">View Submissions</a>
     </div>

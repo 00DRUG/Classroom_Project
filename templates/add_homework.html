@@ -1,11 +1,48 @@
+
 {% extends 'base.html' %}
 {% block content %}
 <div class="homework-form-container">
     <h1>Add Homework</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.title.label_tag }} {{ form.title }} <br>
+        {{ form.description.label_tag }} {{ form.description }} <br>
+        {{ form.assigned_date.label_tag }} {{ form.assigned_date }} <br>
+        {{ form.due_date.label_tag }} {{ form.due_date }} <br>
+        {{ form.file.label_tag }} {{ form.file }} <br>
+
+        <p>
+            <label for="group"><strong>Select Group (optional):</strong></label>
+            {{ form.group }}
+        </p>
+
+        <p>
+            <label><strong>Or Select Individual Students:</strong></label><br>
+            <div id="student-selection">
+                {{ form.students }}
+            </div>
+        </p>
+
         <button type="submit" class="btn btn-primary">Add Homework</button>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var groupSelect = document.getElementById('id_group');
+        var studentSelection = document.getElementById('student-selection');
+        
+        groupSelect.addEventListener('change', function () {
+            if (groupSelect.value) {
+                studentSelection.style.display = 'none'; 
+            } else {
+                studentSelection.style.display = 'block';  
+            }
+        });
+        
+        if (groupSelect.value) {
+            studentSelection.style.display = 'none';
+        }
+    });
+</script>
 {% endblock %}

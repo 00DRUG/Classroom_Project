@@ -114,18 +114,25 @@ def add_homework(request):
         if form.is_valid():
             homework = form.save(commit=False)
             homework.teacher = request.user
-            homework.save()
-            form.save_m2m()
+
+            selected_group = form.cleaned_data['group']
+            selected_students = form.cleaned_data['students']
 
 
+            if selected_group:
+                group_students = selected_group.members.filter(is_student=True)
+                homework.save()
+                homework.students.set(group_students)
+            else:
+
+                homework.save()
+                homework.students.set(selected_students)
 
             return redirect('teacher_dashboard')
     else:
         form = HomeworkForm()
 
     return render(request, 'add_homework.html', {'form': form})
-
-
 @login_required
 def homework_calendar(request):
     homeworks = Homework.objects.all()
