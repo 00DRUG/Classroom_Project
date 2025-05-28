@@ -1,33 +1,103 @@
 from django.contrib.auth import authenticate, login
-from django.shortcuts import  get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Homework, Submission
-from .forms import HomeworkForm, SubmissionForm, FeedbackForm, ProfileForm
+from .forms import HomeworkForm, SubmissionForm, FeedbackForm, ProfileForm, RegistrationForm
 from datetime import datetime, timezone
 from .models import CustomUser
+from django.contrib import messages
+
+
 def unified_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user_role = request.POST['role']
-        remember_me = request.POST.get('remember_me', False)
+        action = request.POST.get('action')
 
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            if (user_role == 'student' and user.is_student) or (user_role == 'teacher' and user.is_teacher):
-                login(request, user)
+        # 🔹 Обробка реєстрації
+        if action == 'register':
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            role = request.POST.get('role')
 
-                if remember_me:
-                    request.session.set_expiry(60 * 60 * 24 * 30)
+            if password1 != password2:
+                messages.error(request, 'Passwords do not match.')
+                return redirect('unified_login')
+
+            if CustomUser.objects.filter(username=username).exists():
+                messages.error(request, 'Username already taken.')
+                return redirect('unified_login')
+
+            user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                password=password1,
+                first_name=first_name,
+                last_name=last_name,
+                is_active=False  # ❗ очікування схвалення
+            )
+
+            # Призначення ролі (припускаємо, що є поля is_student і is_teacher)
+            if role == 'student':
+                user.is_student = True
+            elif role == 'teacher':
+                user.is_teacher = True
+            user.save()
+
+            messages.success(request, 'Registration submitted. Please wait for approval.')
+            return redirect('unified_login')
+
+        # 🔹 Обробка логіну
+        else:
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            role = request.POST.get('role')
+            remember_me = request.POST.get('remember_me')
+
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                if user.is_active:
+                    if (role == 'student' and user.is_student) or (role == 'teacher' and user.is_teacher):
+                        login(request, user)
+
+                        if remember_me:
+                            request.session.set_expiry(60 * 60 * 24 * 30)  # 30 днів
+                        else:
+                            request.session.set_expiry(0)  # до закриття браузера
+
+                        if role == 'student':
+                            return redirect('student_dashboard')
+                        else:
+                            return redirect('teacher_dashboard')
+                    else:
+                        messages.error(request, 'Role mismatch.')
                 else:
-                    request.session.set_expiry(0)
+                    messages.error(request, 'Your account is inactive.')
+            else:
+                messages.error(request, 'Invalid username or password.')
 
-                if user_role == 'student':
-                    return redirect('student_dashboard')
-                else:
-                    return redirect('teacher_dashboard')
     return render(request, 'unified_login.html')
+
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+
+            messages.success(request, "Registration successful. Await admin approval.")
+            return redirect('login')
+    else:
+        form = RegistrationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+
 @login_required
 def teacher_dashboard(request):
     return render(request, 'teacher_dashboard.html')
@@ -37,7 +107,6 @@ def teacher_dashboard(request):
 def student_dashboard(request):
     if not request.user.is_student:
         return redirect('teacher_dashboard')
-
 
     homeworks = Homework.objects.filter(students=request.user, due_date__gte=datetime.now())
 
@@ -67,10 +136,8 @@ def student_dashboard(request):
 def upload_submission(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id)
 
-
     if not request.user.is_student:
         return redirect('teacher_dashboard')
-
 
     submission, created = Submission.objects.get_or_create(homework=homework, student=request.user)
 
@@ -118,7 +185,6 @@ def add_homework(request):
             selected_group = form.cleaned_data['group']
             selected_students = form.cleaned_data['students']
 
-
             if selected_group:
                 group_students = selected_group.members.filter(is_student=True)
                 homework.save()
@@ -133,15 +199,20 @@ def add_homework(request):
         form = HomeworkForm()
 
     return render(request, 'add_homework.html', {'form': form})
+
+
 @login_required
 def homework_calendar(request):
     homeworks = Homework.objects.all()
     return render(request, 'homework_calendar.html', {'homeworks': homeworks})
 
+
 @login_required
 def profile_view(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     return render(request, 'profile.html', {'user': user})
+
+
 @login_required
 def give_feedback(request, submission_id):
     submission = get_object_or_404(Submission, id=submission_id, homework__teacher=request.user)
@@ -195,6 +266,8 @@ def edit_profile(request):
         form = ProfileForm(instance=request.user)
 
     return render(request, 'edit_profile.html', {'form': form})
+
+
 @login_required
 def homework_calendar_view(request):
     # Fetch all homework for the logged-in student or teacher

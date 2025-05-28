@@ -21,6 +21,15 @@
             }
             return true;  
         }
+        function toggleRegisterForm() {
+            const role = document.getElementById('role').value;
+            if (!role) {
+                alert("Please choose a role first.");
+                return;
+            }
+            document.getElementById('register-role').value = role;
+            document.getElementById('register-form').style.display = 'block';
+        }
     </script>
 </head>
 <body>
@@ -36,6 +45,7 @@
         <form method="post" onsubmit="return validateForm(event)">
             {% csrf_token %}
             <input type="hidden" name="role" id="role" value="">
+            <input type="hidden" name="action" value="login">
 
 
             <div class="form-group">
@@ -52,7 +62,31 @@
 
 
             <button type="submit">Login</button>
+            <button type="register" onclick="toggleRegisterForm()" >Register</button>
         </form>
+        <div id="register-form" style="display: none; margin-top: 20px;">
+    <h1>Register</h1>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="register">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="text" name="first_name" placeholder="First Name" required>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password1" placeholder="Password" required>
+        <input type="password" name="password2" placeholder="Confirm Password" required>
+        <input type="hidden" name="role" id="register-role">
+        <button type="submit">Submit Registration</button>
+    </form>
+        </div>
+        {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
     </div>
 </body>
 </html>

@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', polls.views.unified_login),
+    path('', polls.views.unified_login, name='unified_login'),
     path('student/dashboard/', polls.views.student_dashboard, name='student_dashboard'),  # Name is 'classroom_hub'
     path('homework/<int:homework_id>/submit/', polls.views.upload_submission, name='upload_submission'),
     path('calendar/', polls.views.homework_calendar_view, name='homework_calendar'),

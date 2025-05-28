@@ -6,7 +6,8 @@ from .models import CustomUser, Group
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
-
+#adminCVUT1 - password admin
+#adminCVUT1 - password student1/teacher1
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     list_display = ['name', 'description']

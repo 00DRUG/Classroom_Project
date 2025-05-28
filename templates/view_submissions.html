@@ -4,7 +4,7 @@
 <div class="submissions-list-container">
     {% for submission in submissions %}
     <div class="submission-card">
-        <h2>{{ submission.student.username }}</h2>
+        <h2>{{ submission.student.first_name }},{{ submission.student.last_name }}</h2>
         <p>Submitted on: {{ submission.submitted_on }}</p>
         <p><a href="{{ submission.file.url }}">Download Submission</a></p>
         <p><strong>Marks:</strong> {{ submission.marks }}</p>
