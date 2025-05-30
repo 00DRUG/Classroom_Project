@@ -1,5 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
+<form method="get" class="mb-3">
+    <label for="subject">Filter by subject:</label>
+    <select name="subject" id="subject" onchange="this.form.submit()">
+        <option value="">All</option>
+        {% for subject in subjects %}
+            <option value="{{ subject }}" {% if selected_subject == subject %}selected{% endif %}>{{ subject }}</option>
+        {% endfor %}
+    </select>
+</form>
 
 <h2>Your Current Homework</h2>
 
@@ -9,7 +18,6 @@
         <h3>{{ item.homework.title }}</h3>
         <p>{{ item.homework.description }}</p>
         <p><strong>Due:</strong> {{ item.homework.due_date }}</p>
-        
         <p>
             <strong>Assigned by:</strong> 
             <a href="{% url 'profile_view' item.homework.teacher.id %}">
@@ -38,9 +46,25 @@
 {% if homework_data|length == 0 %}
     <p>No homework available for you right now.</p>
 {% endif %}
-
-<h2>Your Previous Submissions</h2>
-
+{% if has_pending_submissions %}
+    <h2>Your Previous-pending Submissions</h2>
+{% endif %}
+<div class="assignment-list">
+    {% for submission in submissions %}
+    {% if submission.status == 'pending' %}
+    <div class="assignment-block">
+        <h3>{{ submission.homework.title }}</h3>
+        <p><strong>Submitted on:</strong> {{ submission.submitted_on }}</p>
+        <p><strong>Marks:</strong> {{ submission.marks }}</p>
+        <p><strong>Comments:</strong> {{ submission.comments }}</p>
+        <p><strong>Status:</strong> Pending</p>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+    {% if has_graded_submissions %}
+    <h2>Your Previous-graded Submissions</h2>
+{% endif %}
 <div class="assignment-list">
     {% for submission in submissions %}
     {% if submission.status == 'graded' %}

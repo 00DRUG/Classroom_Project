@@ -25,8 +25,19 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+class Subject(models.Model):
+    name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+def get_default_subject():
+    return Subject.objects.get_or_create(name="General")[0].id
 class Homework(models.Model):
+
+
+
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, default=get_default_subject)
+
     title = models.CharField(max_length=200)
     description = models.TextField()
     assigned_date = models.DateField(default=timezone.now)

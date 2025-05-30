@@ -1,25 +1,37 @@
 /* Submissions List Container */
 .submissions-list-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-gap: 20px;
+    justify-items: start;
+    max-width: 1200px;
+
 }
 
 .submission-card {
-    background-color: #ffffff;
-    padding: 15px;
+    background-color: #f0f4f8;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    text-align: left;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .submission-card h2 {
     font-size: 18px;
     font-weight: bold;
     color: #003366;
+    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .submission-card p {

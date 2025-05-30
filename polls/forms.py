@@ -17,7 +17,7 @@ class HomeworkForm(forms.ModelForm):
 
     class Meta:
         model = Homework
-        fields = ['title', 'description', 'assigned_date', 'due_date', 'file', 'students', 'group']
+        fields = ['subject', 'title', 'description', 'assigned_date', 'due_date', 'file', 'students', 'group']
 
 
 class SubmissionForm(forms.ModelForm):

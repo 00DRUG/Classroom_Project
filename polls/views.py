@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
@@ -108,16 +110,22 @@ def student_dashboard(request):
     if not request.user.is_student:
         return redirect('teacher_dashboard')
 
-    homeworks = Homework.objects.filter(students=request.user, due_date__gte=datetime.now())
+    selected_subject = request.GET.get('subject')
 
-    print(f"Number of homeworks fetched for student {request.user.username}: {homeworks.count()}")  # Debugging line
+    all_subjects = Homework.objects.filter(students=request.user).values_list('subject', flat=True).distinct()
+
+    if selected_subject:
+        homeworks = Homework.objects.filter(students=request.user, due_date__gte=datetime.now(), subject=selected_subject)
+    else:
+        homeworks = Homework.objects.filter(students=request.user, due_date__gte=datetime.now())
 
     submissions = Submission.objects.filter(student=request.user)
-
+    has_graded_submissions = submissions.filter(status='graded').exists()
+    has_pending_submissions = submissions.filter(status='pending').exists()
     homework_data = []
 
     for homework in homeworks:
-        submission = submissions.filter(homework=homework).first()  # Get the first submission if it exists
+        submission = submissions.filter(homework=homework).first()
         if not submission or submission.status in ['pending', 'returned']:
             homework_data.append({
                 'homework': homework,
@@ -128,6 +136,10 @@ def student_dashboard(request):
     context = {
         'homework_data': homework_data,
         'submissions': submissions,
+        'has_graded_submissions': has_graded_submissions,
+        'has_pending_submissions': has_pending_submissions,
+        'subjects': all_subjects,
+        'selected_subject': selected_subject,
     }
     return render(request, 'student_dashboard.html', context)
 

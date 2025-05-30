@@ -5,6 +5,7 @@
     <h1>Add Homework</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        {{ form.subject.label_tag }} {{ form.subject }} <br>
         {{ form.title.label_tag }} {{ form.title }} <br>
         {{ form.description.label_tag }} {{ form.description }} <br>
         {{ form.assigned_date.label_tag }} {{ form.assigned_date }} <br>

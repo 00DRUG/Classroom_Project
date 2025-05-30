@@ -1,4 +1,12 @@
 
+.assignment-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-gap: 20px;
+    justify-items: start;
+    max-width: 1200px;
+
+}
 .assignment-block {
     background-color: #f0f4f8;
     padding: 20px;
@@ -8,16 +16,28 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .assignment-block h3 {
     font-size: 22px;
     color: #003366;
+    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: break-word;
+
 }
 
 .assignment-block p {
     color: #333;
     margin-bottom: 10px;
+    word-break: break-word;
+    white-space: normal;
 }
 
 .assignment-block strong {
@@ -34,13 +54,8 @@
 }
 
 
-.assignment-list {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-gap: 20px;
-}
 
-@media (min-width: 768px) {
+/*@media (min-width: 768px) {
     .assignment-list {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -51,7 +66,7 @@
         grid-template-columns: repeat(3, 1fr);
     }
 }
-
+*/
 
 .assignment-block .btn {
     background-color: #005b96;
