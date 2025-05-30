@@ -7,8 +7,8 @@
     {% for homework in homeworks %}
     <div class="assignment-block">
         <h3>Subject: {{ homework.subject }}</h3>
-        <h3>{{ homework.title }}</h3>
-        <h3>{{ homework.description|truncatewords:20 }}</h3>
+        <h3>Title: {{ homework.title }}</h3>
+        <h3>Description: {{ homework.description|truncatewords:20 }}</h3>
         <p><strong>Due:</strong> {{ homework.due_date }}</p>
         {% if homework.group %}
             <p><strong>Assigned to group:</strong> {{ homework.group.name }}</p>

@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Group
+from .models import CustomUser, Group, Subject
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
@@ -12,6 +12,19 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 class GroupAdmin(admin.ModelAdmin):
     list_display = ['name', 'description']
 
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.id == 1:  # Or check another unique condition
+            return [field.name for field in self.model._meta.fields]
+        return super().get_readonly_fields(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if obj and obj.id == 1:
+            return False
+        return super().has_delete_permission(request, obj)
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):

@@ -5,43 +5,69 @@
     
 <div id="calendar" style="max-width: 100%; margin: 20px 0;"></div>
 
-<!-- Include FullCalendar CSS and JS -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.9.0/main.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.9.0/main.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+function getDarkHSLColor() {
+    const hue = Math.floor(Math.random() * 360);
+    const saturation = 70 + Math.random() * 30;
+    const lightness = 30 + Math.random() * 10;
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     var calendarEl = document.getElementById('calendar');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',  
+        initialView: 'dayGridMonth',
         headerToolbar: {
-            left: 'prev,next today',   
-            center: 'title',           
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'  
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         events: [
             {% for homework in homeworks %}
             {
-                title: '{{ homework.title }}',
-                start: '{{ homework.assigned_date|date:"Y-m-d" }}', 
-                end: '{{ homework.due_date|date:"Y-m-d" }}',  
-                backgroundColor: 'green',  
-                display: 'block',  
+                title: '{{ homework.title|escapejs }}',
+                start: '{{ homework.assigned_date|date:"Y-m-d" }}',
+                end: '{{ homework.due_date|date:"Y-m-d" }}',
+                extendedProps: {
+                    subject: '{{ homework.subject.name|default:"No subject"|escapejs }}',
+                    description: '{{ homework.description|truncatewords:10|escapejs }}'
+                },
+                display: 'block'
             },
             {% endfor %}
         ],
-        eventColor: '#378006',  
-        editable: false,  
-        aspectRatio: 1.35, 
-        expandRows: true,  
+        eventContent: function(arg) {
+            return {
+                html: `<div class="fc-event-title-container">
+                        <strong>${arg.event.extendedProps.subject}</strong><br>
+                        ${arg.event.title}
+                       </div>`
+            };
+        },
+        eventDidMount: function(info) {
+            const color = getDarkHSLColor();
+            info.el.style.backgroundColor = color;
+            info.el.style.color = 'white';
+        },
         eventClick: function(info) {
-            alert('Homework: ' + info.event.title + '\nDue on: ' + info.event.end.toISOString().split('T')[0]);
-        }
+            alert(
+                'Subject: ' + info.event.extendedProps.subject + '\n' +
+                'Homework: ' + info.event.title + '\n' +
+                'Due on: ' + info.event.endStr
+            );
+        },
+        editable: false,
+        aspectRatio: 1.35,
+        expandRows: true
     });
 
     calendar.render();
 });
 </script>
+
 
 {% endblock %}
