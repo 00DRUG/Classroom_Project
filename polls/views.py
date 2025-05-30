@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Homework, Submission
+from .models import Homework, Submission, Subject
 from .forms import HomeworkForm, SubmissionForm, FeedbackForm, ProfileForm, RegistrationForm
 from datetime import datetime, timezone
 from .models import CustomUser
@@ -112,12 +112,30 @@ def student_dashboard(request):
 
     selected_subject = request.GET.get('subject')
 
-    all_subjects = Homework.objects.filter(students=request.user).values_list('subject', flat=True).distinct()
+    all_subjects = Subject.objects.filter(homework__students=request.user).distinct()
 
-    if selected_subject:
-        homeworks = Homework.objects.filter(students=request.user, due_date__gte=datetime.now(), subject=selected_subject)
+    selected_subject_id = request.GET.get('subject')
+
+    if selected_subject_id:
+        try:
+            selected_subject = Subject.objects.get(id=selected_subject_id)
+            homeworks = Homework.objects.filter(
+                students=request.user,
+                due_date__gte=datetime.now(),
+                subject=selected_subject
+            )
+        except Subject.DoesNotExist:
+            selected_subject = None
+            homeworks = Homework.objects.filter(
+                students=request.user,
+                due_date__gte=datetime.now()
+            )
     else:
-        homeworks = Homework.objects.filter(students=request.user, due_date__gte=datetime.now())
+        selected_subject = None
+        homeworks = Homework.objects.filter(
+            students=request.user,
+            due_date__gte=datetime.now()
+        )
 
     submissions = Submission.objects.filter(student=request.user)
     has_graded_submissions = submissions.filter(status='graded').exists()

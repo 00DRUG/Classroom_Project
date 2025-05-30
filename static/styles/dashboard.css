@@ -4,8 +4,7 @@
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     grid-gap: 20px;
     justify-items: start;
-    max-width: 1200px;
-
+    /*max-width: 1200px;*/
 }
 .assignment-block {
     background-color: #f0f4f8;

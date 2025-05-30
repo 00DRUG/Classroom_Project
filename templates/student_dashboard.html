@@ -1,22 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-<form method="get" class="mb-3">
-    <label for="subject">Filter by subject:</label>
-    <select name="subject" id="subject" onchange="this.form.submit()">
-        <option value="">All</option>
-        {% for subject in subjects %}
-            <option value="{{ subject }}" {% if selected_subject == subject %}selected{% endif %}>{{ subject }}</option>
-        {% endfor %}
-    </select>
-</form>
+
+
 
 <h2>Your Current Homework</h2>
 
 <div class="assignment-list">
     {% for item in homework_data %}
     <div class="assignment-block">
-        <h3>{{ item.homework.title }}</h3>
-        <p>{{ item.homework.description }}</p>
+        <p><strong>Subject:</strong> {{ item.homework.subject }}</p>
+        <p><strong>Title:</strong> {{ item.homework.title }}</p>
+        <p> <strong>Description: </strong>{{ item.homework.description }}</p>
         <p><strong>Due:</strong> {{ item.homework.due_date }}</p>
         <p>
             <strong>Assigned by:</strong> 

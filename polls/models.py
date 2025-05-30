@@ -17,7 +17,7 @@ class Group(models.Model):
 class CustomUser(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
-    age = models.IntegerField(null=True, blank=True)  # Add age field here
+    age = models.IntegerField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True, related_name="members")
@@ -33,9 +33,6 @@ class Subject(models.Model):
 def get_default_subject():
     return Subject.objects.get_or_create(name="General")[0].id
 class Homework(models.Model):
-
-
-
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, default=get_default_subject)
 
     title = models.CharField(max_length=200)
