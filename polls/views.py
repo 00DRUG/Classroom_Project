@@ -1,4 +1,4 @@
-from urllib import request
+import random
 
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
@@ -110,7 +110,8 @@ def student_dashboard(request):
     if not request.user.is_student:
         return redirect('teacher_dashboard')
 
-    all_subjects = Subject.objects.filter(homework__students=request.user).distinct() # made to see only subject in which student has homeworks
+    all_subjects = Subject.objects.filter(
+        homework__students=request.user).distinct()  # made to see only subject in which student has homeworks
 
     selected_subject_id = request.GET.get('subject')
 
@@ -204,6 +205,7 @@ def upload_submission(request, homework_id):
         'existing_files': existing_files,
     })
 
+
 @login_required
 def teacher_dashboard(request):
     if not request.user.is_teacher:
@@ -247,9 +249,29 @@ def add_homework(request):
 
     return render(request, 'add_homework.html', {'form': form})
 
+
+def get_random_dark_color():
+    h = random.randint(0, 360)
+    s = random.randint(70, 100)
+    l = random.randint(30, 40)
+    return f'hsl({h}, {s}%, {l}%)'
+
+
 @login_required
-def homework_calendar(request):
-    homeworks = Homework.objects.all()
+def homework_calendar_view(request):
+    if request.user.is_teacher:
+        homeworks = Homework.objects.filter(teacher=request.user)
+    elif request.user.is_student:
+        homeworks = Homework.objects.filter(students=request.user)
+    else:
+        homeworks = []
+
+    homework_colors = {}
+    for hw in homeworks:
+        if hw.id not in homework_colors:
+            homework_colors[hw.id] = get_random_dark_color()
+        hw.color = homework_colors[hw.id]
+
     return render(request, 'homework_calendar.html', {'homeworks': homeworks})
 
 
@@ -257,6 +279,7 @@ def homework_calendar(request):
 def profile_view(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     return render(request, 'profile.html', {'user': user})
+
 
 @login_required
 def homework_detail(request, pk):
@@ -268,6 +291,8 @@ def homework_detail(request, pk):
         'homework': homework,
         'submission': submission
     })
+
+
 @login_required
 def give_feedback(request, submission_id):
     submission = get_object_or_404(Submission, id=submission_id, homework__teacher=request.user)
@@ -321,19 +346,3 @@ def edit_profile(request):
         form = ProfileForm(instance=request.user)
 
     return render(request, 'edit_profile.html', {'form': form})
-
-
-@login_required
-def homework_calendar_view(request):
-    # Fetch all homework for the logged-in student or teacher
-    if request.user.is_teacher:
-        homeworks = Homework.objects.filter(teacher=request.user)
-    elif request.user.is_student:
-        homeworks = Homework.objects.filter(students=request.user)
-    else:
-        homeworks = []
-
-    context = {
-        'homeworks': homeworks,
-    }
-    return render(request, 'homework_calendar.html', context)
