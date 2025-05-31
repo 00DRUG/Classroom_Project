@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -116,7 +117,7 @@ LOGOUT_REDIRECT_URL = 'unified_login'
 
 # FOR THE MEDIA AND PICTURES UPLOAD TO PROFILES
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 

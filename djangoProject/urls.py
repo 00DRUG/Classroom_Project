@@ -8,7 +8,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', polls.views.unified_login, name='unified_login'),
-    path('student/dashboard/', polls.views.student_dashboard, name='student_dashboard'),  # Name is 'classroom_hub'
+    path('student/dashboard/', polls.views.student_dashboard, name='student_dashboard'),
+    path('homework/<int:pk>/', polls.views.homework_detail, name='homework_detail'),
     path('homework/<int:homework_id>/submit/', polls.views.upload_submission, name='upload_submission'),
     path('calendar/', polls.views.homework_calendar_view, name='homework_calendar'),
     path('teacher/dashboard/', polls.views.teacher_dashboard, name='teacher_dashboard'),
@@ -23,3 +24,5 @@ urlpatterns = [
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

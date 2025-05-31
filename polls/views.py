@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Homework, Submission, Subject
+from .models import Homework, Submission, Subject, SubmissionFile
 from .forms import HomeworkForm, SubmissionForm, FeedbackForm, ProfileForm, RegistrationForm
 from datetime import datetime, timezone
 from .models import CustomUser
@@ -110,9 +110,7 @@ def student_dashboard(request):
     if not request.user.is_student:
         return redirect('teacher_dashboard')
 
-    selected_subject = request.GET.get('subject')
-
-    all_subjects = Subject.objects.filter(homework__students=request.user).distinct()
+    all_subjects = Subject.objects.filter(homework__students=request.user).distinct() # made to see only subject in which student has homeworks
 
     selected_subject_id = request.GET.get('subject')
 
@@ -172,7 +170,18 @@ def upload_submission(request, homework_id):
     submission, created = Submission.objects.get_or_create(homework=homework, student=request.user)
 
     if request.method == 'POST':
-        form = SubmissionForm(request.POST, request.FILES, instance=submission)
+        form = SubmissionForm(request.POST, instance=submission)
+        files = request.FILES.getlist('files')
+
+        files_to_delete = [key for key in request.POST if key.startswith('delete_file_')]
+        for key in files_to_delete:
+            file_id = int(key.split('_')[-1])
+            try:
+                file_obj = SubmissionFile.objects.get(id=file_id, submission=submission)
+                file_obj.delete()
+            except SubmissionFile.DoesNotExist:
+                pass
+
         if form.is_valid():
             new_submission = form.save(commit=False)
             new_submission.submitted_on = datetime.now()
@@ -180,12 +189,20 @@ def upload_submission(request, homework_id):
             new_submission.allow_resubmission = False
             new_submission.save()
 
+            for f in files:
+                SubmissionFile.objects.create(submission=new_submission, file=f)
+
             return redirect('student_dashboard')
     else:
         form = SubmissionForm(instance=submission)
 
-    return render(request, 'upload_submission.html', {'form': form, 'homework': homework})
+    existing_files = submission.files.all()
 
+    return render(request, 'upload_submission.html', {
+        'form': form,
+        'homework': homework,
+        'existing_files': existing_files,
+    })
 
 @login_required
 def teacher_dashboard(request):
@@ -211,25 +228,24 @@ def add_homework(request):
         if form.is_valid():
             homework = form.save(commit=False)
             homework.teacher = request.user
+            homework.save()
 
             selected_group = form.cleaned_data['group']
             selected_students = form.cleaned_data['students']
 
             if selected_group:
                 group_students = selected_group.members.filter(is_student=True)
-                homework.save()
                 homework.students.set(group_students)
             else:
-
-                homework.save()
                 homework.students.set(selected_students)
 
             return redirect('teacher_dashboard')
+        else:
+            print("Form errors:", form.errors)
     else:
         form = HomeworkForm()
 
     return render(request, 'add_homework.html', {'form': form})
-
 
 @login_required
 def homework_calendar(request):
@@ -242,7 +258,16 @@ def profile_view(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     return render(request, 'profile.html', {'user': user})
 
+@login_required
+def homework_detail(request, pk):
+    homework = get_object_or_404(Homework, pk=pk)
 
+    submission = homework.submissions.filter(student=request.user).first()
+
+    return render(request, 'homework_detail.html', {
+        'homework': homework,
+        'submission': submission
+    })
 @login_required
 def give_feedback(request, submission_id):
     submission = get_object_or_404(Submission, id=submission_id, homework__teacher=request.user)

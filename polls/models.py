@@ -57,12 +57,17 @@ class Submission(models.Model):
 
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='submissions')
     homework = models.ForeignKey(Homework, on_delete=models.CASCADE, related_name='submissions')
-    file = models.FileField(upload_to='homework_submissions/')
     submitted_on = models.DateTimeField(auto_now_add=True)
     marks = models.IntegerField(null=True, blank=True)
-    comments = models.TextField(null=True, blank=True)
+    comments_teacher = models.TextField(null=True, blank=True)
+    comments_student = models.TextField(null=True, blank=True)
     allow_resubmission = models.BooleanField(default=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
         return f"{self.student.username} - {self.homework.title}"
+
+
+class SubmissionFile(models.Model):
+    submission = models.ForeignKey('Submission', on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(upload_to='homework_submissions/')

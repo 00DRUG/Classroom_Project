@@ -1,11 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="submission-form-container">
-    <h1>Submit Homework for {{ homework.title }}</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit</button>
-    </form>
-</div>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <label for="id_files">Upload files:</label>
+    <input type="file" name="files" id="id_files" multiple>
+
+    <h3>Uploaded files:</h3>
+    <ul>
+    {% for f in existing_files %}
+        <li>
+            <a href="{{ f.file.url }}">{{ f.file.name }}</a>
+            <label>
+                <input type="checkbox" name="delete_file_{{ f.id }}">
+                Delete
+            </label>
+        </li>
+    {% empty %}
+        <li>No files uploaded yet.</li>
+    {% endfor %}
+    </ul>
+
+    <button type="submit">Submit</button>
+</form>
+
 {% endblock %}

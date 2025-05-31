@@ -8,7 +8,8 @@
         <p>Submitted on: {{ submission.submitted_on }}</p>
         <p><a href="{{ submission.file.url }}">Download Submission</a></p>
         <p><strong>Marks:</strong> {{ submission.marks }}</p>
-        <p><strong>Comments:</strong> {{ submission.comments }}</p>
+        <p><strong>Comments from student:</strong> {{ submission.comments_student }}</p>
+        <p><strong>Comments from teacher:</strong> {{ submission.comments_teacher }}</p>
         <p><strong>Resubmission Allowed:</strong> {{ submission.allow_resubmission|yesno:"Yes,No" }}</p>
         <a href="{% url 'give_feedback' submission.id %}">Give Feedback</a>
     </div>
