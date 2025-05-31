@@ -1,6 +1,9 @@
 a{
     color:snow;
 }
+html, body {
+ overflow: hidden;
+}
 .fc-daygrid-day-number {
     display: block;
     text-align: center !important;
@@ -9,7 +12,6 @@ a{
     color: #003366;
     margin-top: 5px;
     text-decoration: none;
-
 }
 .fc-daygrid-day-top {
   justify-content: center;
@@ -17,8 +19,8 @@ a{
 
 #calendar {
     max-width: 100%;
-    width: 100%;
     overflow: hidden;
+    height: 100vh !important;
 }
 
 

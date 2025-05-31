@@ -150,13 +150,25 @@ def student_dashboard(request):
                 'resubmission_allowed': submission.allow_resubmission if submission else False,
             })
 
+    current_homeworks = [
+        {
+            'homework': homework,
+            'submission': submission,
+            'resubmission_allowed': submission.allow_resubmission if submission else False,
+        }
+        for homework in homeworks
+        if not (submission := submissions.filter(homework=homework).first()) or submission.status in ['pending',
+                                                                                                      'returned']
+    ]
+
     context = {
-        'homework_data': homework_data,
+        'homework_data': current_homeworks,
         'submissions': submissions,
         'has_graded_submissions': has_graded_submissions,
         'has_pending_submissions': has_pending_submissions,
         'subjects': all_subjects,
         'selected_subject': selected_subject,
+        'has_current_homework': len(current_homeworks) > 0,
     }
     return render(request, 'student_dashboard.html', context)
 
