@@ -165,7 +165,23 @@ def student_dashboard(request):
     }
     return render(request, 'student_dashboard.html', context)
 
+def teacher_dashboard(request):
+    if not request.user.is_teacher:
+        return redirect('student_dashboard')
+    subjects = Subject.objects.all()
+    selected_subject_id = request.GET.get('subject')
 
+    homeworks = Homework.objects.all()
+
+    if selected_subject_id:
+        homeworks = homeworks.filter(subject__id=selected_subject_id)
+
+    context = {
+        'subjects': subjects,
+        'selected_subject': Subject.objects.filter(id=selected_subject_id).first() if selected_subject_id else None,
+        'homeworks': homeworks,
+    }
+    return render(request, 'teacher_dashboard.html', context)
 @login_required
 def upload_submission(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id)
@@ -213,17 +229,7 @@ def upload_submission(request, homework_id):
     })
 
 
-@login_required
-def teacher_dashboard(request):
-    if not request.user.is_teacher:
-        return redirect('student_dashboard')
 
-    homeworks = Homework.objects.filter(teacher=request.user)
-
-    context = {
-        'homeworks': homeworks,
-    }
-    return render(request, 'teacher_dashboard.html', context)
 
 
 @login_required
