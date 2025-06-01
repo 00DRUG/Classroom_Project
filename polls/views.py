@@ -15,7 +15,6 @@ def unified_login(request):
     if request.method == 'POST':
         action = request.POST.get('action')
 
-        # 🔹 Обробка реєстрації
         if action == 'register':
             username = request.POST.get('username')
             email = request.POST.get('email')
@@ -42,7 +41,6 @@ def unified_login(request):
                 is_active=False  # ❗ очікування схвалення
             )
 
-            # Призначення ролі (припускаємо, що є поля is_student і is_teacher)
             if role == 'student':
                 user.is_student = True
             elif role == 'teacher':
@@ -52,7 +50,6 @@ def unified_login(request):
             messages.success(request, 'Registration submitted. Please wait for approval.')
             return redirect('unified_login')
 
-        # 🔹 Обробка логіну
         else:
             username = request.POST.get('username')
             password = request.POST.get('password')
@@ -137,6 +134,7 @@ def student_dashboard(request):
         )
 
     submissions = Submission.objects.filter(student=request.user)
+
     has_graded_submissions = submissions.filter(status='graded').exists()
     has_pending_submissions = submissions.filter(status='pending').exists()
     homework_data = []

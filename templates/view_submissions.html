@@ -1,19 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Submissions for {{ homework.title }}</h1>
-<div class="submissions-list-container">
-    {% for submission in submissions %}
-    <div class="submission-card">
-        <h2>{{ submission.student.first_name }},{{ submission.student.last_name }}</h2>
-        <p>Submitted on: {{ submission.submitted_on }}</p>
-        <p><a href="{{ submission.file.url }}">Download Submission</a></p>
-        <p><strong>Marks:</strong> {{ submission.marks }}</p>
-        <p><strong>Comments from student:</strong> {{ submission.comments_student }}</p>
-        <p><strong>Comments from teacher:</strong> {{ submission.comments_teacher }}</p>
-        <p><strong>Resubmission Allowed:</strong> {{ submission.allow_resubmission|yesno:"Yes,No" }}</p>
-        <a href="{% url 'give_feedback' submission.id %}">Give Feedback</a>
+    <h1>Submissions for {{ homework.title }}</h1>
+    <div class="submissions-list-container">
+        {% for submission in submissions %}
+            <div class="submission-card">
+                <h2>{{ submission.student.first_name }},{{ submission.student.last_name }}</h2>
+                <p>Submitted on: {{ submission.submitted_on }}</p>
+                {% if item.submission.submitted_on > item.homework.due_date %}
+                    {% with item.submission.submitted_on|timesince:item.homework.due_date as late_duration %}
+                        <p class="text-danger"><strong>Late submission:</strong> {{ late_duration }} late</p>
+                    {% endwith %}
+                {% else %}
+                    <p class="text-success"><strong>Submitted on time</strong></p>
+                {% endif %}
+                <p><a href="{{ submission.file.url }}">Download Submission</a></p>
+                <p><strong>Marks:</strong> {{ submission.marks }}</p>
+                <p><strong>Comments from student:</strong> {{ submission.comments_student }}</p>
+                <p><strong>Comments from teacher:</strong> {{ submission.comments_teacher }}</p>
+                <p><strong>Resubmission Allowed:</strong> {{ submission.allow_resubmission|yesno:"Yes,No" }}</p>
+                <a href="{% url 'give_feedback' submission.id %}">Give Feedback</a>
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
-<a href="{% url 'delete_homework' homework.id %}" class="btn btn-danger">Delete Homework</a>
+    <a href="{% url 'delete_homework' homework.id %}" class="btn btn-danger">Delete Homework</a>
 {% endblock %}

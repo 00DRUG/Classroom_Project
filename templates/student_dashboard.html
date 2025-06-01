@@ -12,8 +12,8 @@
             {% endfor %}
         </select>
     </form>
-
-
+{% load tz %}
+{% now "Y-m-d" as today %}
 <h2>Your Current Homework</h2>
 <div class="assignment-list">
     {% if homework_data %}
@@ -42,6 +42,9 @@
                             <button class="btn btn-secondary" disabled>Homework {{ item.submission.get_status_display }}</button>
                         {% endif %}
                     {% else %}
+                        {% if item.homework.due_date|stringformat:"Y-m-d" < today %}
+                            <p class="text-danger" style="color:#963030;"><strong>This homework is overdue.</strong></p>
+                        {% endif %}
                         <a href="{% url 'upload_submission' item.homework.id %}" class="btn btn-primary">Upload Homework</a>
                     {% endif %}
                 </div>
