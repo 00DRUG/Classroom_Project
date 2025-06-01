@@ -3,9 +3,24 @@
 <div class="feedback-form-container">
     <h1>Give Feedback for {{ submission.student.first_name }} {{ submission.student.last_name }}</h1>
     <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Submit Feedback</button>
-    </form>
+    {% csrf_token %}
+
+    <label for="{{ form.marks.id_for_label }}">Mark</label>
+    {{ form.marks }}
+    {{ form.marks.errors }}
+
+    <label for="{{ form.comments_teacher.id_for_label }}">Comments</label>
+    {{ form.comments_teacher }}
+    {{ form.comments_teacher.errors }}
+
+    <div style="margin: 12px 0;">
+        {{ form.allow_resubmission }}
+        <label for="{{ form.allow_resubmission.id_for_label }}">Allow Resubmission</label>
+        {{ form.allow_resubmission.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+</form>
+
 </div>
 {% endblock %}

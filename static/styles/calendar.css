@@ -1,9 +1,7 @@
 a{
     color:snow;
 }
-html, body {
- overflow: hidden;
-}
+
 .fc-daygrid-day-number {
     display: block;
     text-align: center !important;

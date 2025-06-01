@@ -67,6 +67,19 @@ class FeedbackForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ['marks', 'comments_teacher', 'allow_resubmission']
+        widgets = {
+            'marks': forms.NumberInput(attrs={
+                'class': 'feedback-input',
+                'placeholder': 'Enter mark'
+            }),
+            'comments_teacher': forms.Textarea(attrs={
+                'class': 'feedback-textarea',
+                'placeholder': 'Enter comment'
+            }),
+            'allow_resubmission': forms.CheckboxInput(attrs={
+                'class': 'feedback-checkbox'
+            }),
+        }
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser

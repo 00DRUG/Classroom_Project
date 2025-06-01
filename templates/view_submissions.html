@@ -13,7 +13,11 @@
                 {% else %}
                     <p class="text-success"><strong>Submitted on time</strong></p>
                 {% endif %}
-                <p><a href="{{ submission.file.url }}">Download Submission</a></p>
+                {% for file in submission.files.all %}
+                    <p>Download Submission:<br>
+                        <a href="{{ file.file.url }}" download>{{ file.file.name|cut:"homework_submissions/" }}</a>
+                    </p>
+                {% endfor %}
                 <p><strong>Marks:</strong> {{ submission.marks }}</p>
                 <p><strong>Comments from student:</strong> {{ submission.comments_student }}</p>
                 <p><strong>Comments from teacher:</strong> {{ submission.comments_teacher }}</p>

@@ -20,7 +20,18 @@
     display: flex;
     flex-direction: column;
 }
+.feedback-form-container input,
+.feedback-form-container textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    margin-bottom: 12px;
 
+}
+.feedback-checkbox {
+    margin-right: 8px;
+    transform: scale(1.2);
+}
 .feedback-form-container button[type="submit"] {
     background-color: #005b96;
     color: white;
