@@ -98,11 +98,6 @@ def register(request):
 
 
 @login_required
-def teacher_dashboard(request):
-    return render(request, 'teacher_dashboard.html')
-
-
-@login_required
 def student_dashboard(request):
     if not request.user.is_student:
         return redirect('teacher_dashboard')
@@ -181,6 +176,8 @@ def upload_submission(request, homework_id):
     submission, created = Submission.objects.get_or_create(homework=homework, student=request.user)
 
     if request.method == 'POST':
+        if 'submit_button' not in request.POST:
+            return redirect('student_dashboard')
         form = SubmissionForm(request.POST, instance=submission)
         files = request.FILES.getlist('files')
 
@@ -221,7 +218,6 @@ def teacher_dashboard(request):
     if not request.user.is_teacher:
         return redirect('student_dashboard')
 
-    # Get all homework created by the teacher
     homeworks = Homework.objects.filter(teacher=request.user)
 
     context = {

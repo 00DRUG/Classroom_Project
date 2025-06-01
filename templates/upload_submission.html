@@ -1,28 +1,49 @@
 {% extends 'base.html' %}
 {% block content %}
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
+    <div class="submission-form-container">
+        <h1>Submit Your Homework</h1>
+        <form method="post" enctype="multipart/form-data" onsubmit="return confirmSubmit();">
+            {% csrf_token %}
+            <label for="{{ form.comments.id_for_label }}">Comments</label>
+            {{ form.comments_student }}
+            {{ form.comments_student.errors }}
 
-    <label for="id_files">Upload files:</label>
-    <input type="file" name="files" id="id_files" multiple>
+            <label for="id_files">Upload files:</label>
+            <input type="file" name="files" id="id_files" multiple class="submission-input">
 
-    <h3>Uploaded files:</h3>
-    <ul>
-    {% for f in existing_files %}
-        <li>
-            <a href="{{ f.file.url }}">{{ f.file.name }}</a>
-            <label>
-                <input type="checkbox" name="delete_file_{{ f.id }}">
-                Delete
-            </label>
-        </li>
-    {% empty %}
-        <li>No files uploaded yet.</li>
-    {% endfor %}
-    </ul>
+            <h3>Uploaded files:</h3>
+            <ul class="uploaded-files-list">
+                {% for f in existing_files %}
+                    <li>
+                        <a href="{{ f.file.url }}">{{ f.file.name|cut:"homework_submissions/" }}</a>
+                        <label>
+                            <input type="checkbox" name="delete_file_{{ f.id }}">
+                            Delete
+                        </label>
+                    </li>
+                {% empty %}
+                    <li>No files uploaded yet.</li>
+                {% endfor %}
+            </ul>
+            <button type="submit" class="btn btn-primary" name="submit_button" value="Submit">Submit</button>
+        </form>
 
-    <button type="submit">Submit</button>
-</form>
+    </div>
+    <script>
+        function confirmSubmit() {
+            return confirm("Are you sure you want to submit your homework?");
+        }
 
+        let isSubmitted = false;
+        document.getElementById('homework-form').addEventListener('submit', () => {
+            isSubmitted = true;
+        });
+
+        window.addEventListener('beforeunload', function (e) {
+            if (!isSubmitted) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
 {% endblock %}
