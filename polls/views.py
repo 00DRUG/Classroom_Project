@@ -1,6 +1,7 @@
 import random
 
 from django.contrib.auth import authenticate, login
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -172,7 +173,9 @@ def teacher_dashboard(request):
     selected_subject_id = request.GET.get('subject')
 
     homeworks = Homework.objects.all()
-
+    submits_counter = homeworks.annotate(
+        submitted_count=Count('submissions', filter=Q(submissions__status='submitted'), distinct=True)
+    )
     if selected_subject_id:
         homeworks = homeworks.filter(subject__id=selected_subject_id)
 
