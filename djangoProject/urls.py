@@ -9,17 +9,17 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', polls.views.unified_login, name='unified_login'),
     path('logout/', polls.views.logout_view, name='logout'),
-    path('student/dashboard/', polls.views.student_dashboard, name='student_dashboard'),
+    path('dashboard/', polls.views.dashboard, name='dashboard'),
     path('homework/<int:pk>/', polls.views.homework_detail, name='homework_detail'),
     path('homework/<int:homework_id>/submit/', polls.views.upload_submission, name='upload_submission'),
     path('calendar/', polls.views.homework_calendar_view, name='homework_calendar'),
-    path('teacher/dashboard/', polls.views.teacher_dashboard, name='teacher_dashboard'),
+    #for the Teacher specific
     path('teacher/homework/add/', polls.views.add_homework, name='add_homework'),
     path('teacher/homework/add/', polls.views.add_homework, name='add_homework'),
     path('teacher/homework/<int:homework_id>/submissions/', polls.views.view_submissions, name='view_submissions'),
     path('teacher/submission/<int:submission_id>/feedback/', polls.views.give_feedback, name='give_feedback'),
     path('teacher/homework/<int:homework_id>/delete/', polls.views.delete_homework, name='delete_homework'),
-    path('logout/', polls.views.unified_login, name='logout'),
+    # profile
     path('profile/<int:user_id>/', polls.views.profile_view, name='profile_view'),
     path('profile/edit/', polls.views.edit_profile, name='edit_profile'),
 

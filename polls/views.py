@@ -73,10 +73,9 @@ def unified_login(request):
                             request.session.set_expiry(0)
                         if next_url:
                             return redirect(next_url)
-                        if role == 'student':
-                            return redirect('student_dashboard')
-                        else:
-                            return redirect('teacher_dashboard')
+
+                        return redirect('dashboard')
+
                     else:
                         messages.error(request, 'Role mismatch.')
                 else:
@@ -86,10 +85,13 @@ def unified_login(request):
 
     return render(request, 'unified_login.html', {'next': request.GET.get('next', '')})
 
+
 def logout_view(request):
     request.session.pop('homework_colors', None)
     logout(request)
     return redirect('unified_login')
+
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -106,104 +108,97 @@ def register(request):
 
 
 @login_required
-def student_dashboard(request):
+def dashboard(request):
     today = localdate()
-    if not request.user.is_student:
-        return redirect('teacher_dashboard')
+    if request.user.is_student:
+        all_subjects = Subject.objects.filter(
+            homework__students=request.user).distinct()  # made to see only subject in which student has homeworks
 
-    all_subjects = Subject.objects.filter(
-        homework__students=request.user).distinct()  # made to see only subject in which student has homeworks
+        selected_subject_id = request.GET.get('subject')
 
-    selected_subject_id = request.GET.get('subject')
-
-    if selected_subject_id:
-        try:
-            selected_subject = Subject.objects.get(id=selected_subject_id)
-            homeworks = Homework.objects.filter(
-                students=request.user,
-                due_date__gte=datetime.now(),
-                subject=selected_subject
-            )
-        except Subject.DoesNotExist:
+        if selected_subject_id:
+            try:
+                selected_subject = Subject.objects.get(id=selected_subject_id)
+                homeworks = Homework.objects.filter(
+                    students=request.user,
+                    due_date__gte=datetime.now(),
+                    subject=selected_subject
+                )
+            except Subject.DoesNotExist:
+                selected_subject = None
+                homeworks = Homework.objects.filter(
+                    students=request.user,
+                    due_date__gte=datetime.now()
+                )
+        else:
             selected_subject = None
             homeworks = Homework.objects.filter(
                 students=request.user,
                 due_date__gte=datetime.now()
             )
-    else:
-        selected_subject = None
-        homeworks = Homework.objects.filter(
-            students=request.user,
-            due_date__gte=datetime.now()
-        )
 
-    submissions = Submission.objects.filter(student=request.user)
+        submissions = Submission.objects.filter(student=request.user)
 
-    has_graded_submissions = submissions.filter(status='graded').exists()
-    has_pending_submissions = submissions.filter(status='pending').exists()
-    homework_data = []
+        has_graded_submissions = submissions.filter(status='graded').exists()
+        has_pending_submissions = submissions.filter(status='pending').exists()
+        homework_data = []
 
-    for homework in homeworks:
-        submission = submissions.filter(homework=homework).first()
-        if not submission or submission.status in ['pending', 'returned']:
-            homework_data.append({
+        for homework in homeworks:
+            submission = submissions.filter(homework=homework).first()
+            if not submission or submission.status in ['pending', 'returned']:
+                homework_data.append({
+                    'homework': homework,
+                    'submission': submission,
+                    'resubmission_allowed': submission.allow_resubmission if submission else False,
+                })
+
+        current_homeworks = [
+            {
                 'homework': homework,
                 'submission': submission,
                 'resubmission_allowed': submission.allow_resubmission if submission else False,
-            })
+            }
+            for homework in homeworks
+            if not (submission := submissions.filter(homework=homework).first()) or submission.status in ['pending',
+                                                                                                          'returned']
+        ]
 
-    current_homeworks = [
-        {
-            'homework': homework,
-            'submission': submission,
-            'resubmission_allowed': submission.allow_resubmission if submission else False,
+        context = {
+            'homework_data': current_homeworks,
+            'submissions': submissions,
+            'has_graded_submissions': has_graded_submissions,
+            'has_pending_submissions': has_pending_submissions,
+            'subjects': all_subjects,
+            'selected_subject': selected_subject,
+            'has_current_homework': len(current_homeworks) > 0,
+            'today': today,
+            'is_student': True,
         }
-        for homework in homeworks
-        if not (submission := submissions.filter(homework=homework).first()) or submission.status in ['pending',
-                                                                                                      'returned']
-    ]
+        return render(request, 'dashboard.html', context)
+    if request.user.is_teacher:
+        subjects = Subject.objects.all()
+        selected_subject_id = request.GET.get('subject')
 
-    context = {
-        'homework_data': current_homeworks,
-        'submissions': submissions,
-        'has_graded_submissions': has_graded_submissions,
-        'has_pending_submissions': has_pending_submissions,
-        'subjects': all_subjects,
-        'selected_subject': selected_subject,
-        'has_current_homework': len(current_homeworks) > 0,
-        'today': today,
-    }
-    return render(request, 'student_dashboard.html', context)
+        homeworks = Homework.objects.all()
+        submits_counter = homeworks.annotate(
+            submitted_count=Count('submissions', filter=Q(submissions__status='submitted'), distinct=True)
+        )
+        if selected_subject_id:
+            homeworks = homeworks.filter(subject__id=selected_subject_id)
 
-
-@login_required
-def teacher_dashboard(request):
-    if not request.user.is_teacher:
-        return redirect('student_dashboard')
-    subjects = Subject.objects.all()
-    selected_subject_id = request.GET.get('subject')
-
-    homeworks = Homework.objects.all()
-    submits_counter = homeworks.annotate(
-        submitted_count=Count('submissions', filter=Q(submissions__status='submitted'), distinct=True)
-    )
-    if selected_subject_id:
-        homeworks = homeworks.filter(subject__id=selected_subject_id)
-
-    context = {
-        'subjects': subjects,
-        'selected_subject': Subject.objects.filter(id=selected_subject_id).first() if selected_subject_id else None,
-        'homeworks': homeworks,
-    }
-    return render(request, 'teacher_dashboard.html', context)
+        context = {
+            'subjects': subjects,
+            'selected_subject': Subject.objects.filter(id=selected_subject_id).first() if selected_subject_id else None,
+            'homeworks': homeworks,
+            'is_teacher': True,
+        }
+        return render(request, 'dashboard.html', context)
 
 
 @login_required
 def upload_submission(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id)
 
-    if not request.user.is_student:
-        return redirect('teacher_dashboard')
     try:
         submission = Submission.objects.get(homework=homework, student=request.user)
     except Submission.DoesNotExist:
@@ -211,12 +206,14 @@ def upload_submission(request, homework_id):
 
     if request.method == 'POST':
         if 'submit_button' not in request.POST:
-            return redirect('student_dashboard')
+            return redirect('dashboard')
         form = SubmissionForm(request.POST, instance=submission)
         files = request.FILES.getlist('files')
 
         if form.is_valid():
             new_submission = form.save(commit=False)
+            new_submission.homework = homework
+            new_submission.student = request.user
             new_submission.submitted_on = datetime.now()
             new_submission.status = 'pending'
             new_submission.allow_resubmission = False
@@ -234,11 +231,11 @@ def upload_submission(request, homework_id):
             for f in files:
                 SubmissionFile.objects.create(submission=new_submission, file=f)
 
-            return redirect('student_dashboard')
+            return redirect('dashboard')
     else:
         form = SubmissionForm(instance=submission)
 
-    existing_files = submission.files.all()if submission else []
+    existing_files = submission.files.all() if submission else []
 
     return render(request, 'upload_submission.html', {
         'form': form,
@@ -249,9 +246,6 @@ def upload_submission(request, homework_id):
 
 @login_required
 def add_homework(request):
-    if not request.user.is_teacher:
-        return redirect('student_dashboard')
-
     if request.method == 'POST':
         form = HomeworkForm(request.POST, request.FILES)
         if form.is_valid():
@@ -268,7 +262,7 @@ def add_homework(request):
             else:
                 homework.students.set(selected_students)
 
-            return redirect('teacher_dashboard')
+            return redirect('dashboard')
         else:
             print("Form errors:", form.errors)
     else:
@@ -354,16 +348,13 @@ def give_feedback(request, submission_id):
 def delete_homework(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id, teacher=request.user)
     if request.method == 'POST':
-        homework.delete()  # Delete the homework assignment
-        return redirect('teacher_dashboard')
+        homework.delete()
+        return redirect('dashboard')
     return render(request, 'confirm_delete_homework.html', {'homework': homework})
 
 
 @login_required
 def view_submissions(request, homework_id):
-    if not request.user.is_teacher:
-        return redirect('student_dashboard')
-
     homework = get_object_or_404(Homework, id=homework_id, teacher=request.user)
     submissions = Submission.objects.filter(homework=homework)
 
