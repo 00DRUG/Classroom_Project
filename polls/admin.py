@@ -17,7 +17,7 @@ class SubjectAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
 
     def get_readonly_fields(self, request, obj=None):
-        if obj and obj.id == 1:  # Or check another unique condition
+        if obj and obj.id == 1:
             return [field.name for field in self.model._meta.fields]
         return super().get_readonly_fields(request, obj)
 
@@ -49,7 +49,6 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('is_student', 'is_teacher', 'age', 'group')}),
     )
 
-    # Fields to show when adding a new User
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {'fields': ('email', 'is_student', 'is_teacher', 'age', 'group')}),
     )

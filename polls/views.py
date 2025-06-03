@@ -1,10 +1,12 @@
 import random
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+
+from djangoProject.settings import LOGIN_URL
 from .models import Homework, Submission, Subject, SubmissionFile
 from .forms import HomeworkForm, SubmissionForm, FeedbackForm, ProfileForm, RegistrationForm
 from datetime import datetime, timezone
@@ -39,7 +41,7 @@ def unified_login(request):
                 password=password1,
                 first_name=first_name,
                 last_name=last_name,
-                is_active=False  # ❗ очікування схвалення
+                is_active=False
             )
 
             if role == 'student':
@@ -56,7 +58,7 @@ def unified_login(request):
             password = request.POST.get('password')
             role = request.POST.get('role')
             remember_me = request.POST.get('remember_me')
-
+            next_url = request.POST.get('next')
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
@@ -65,10 +67,11 @@ def unified_login(request):
                         login(request, user)
 
                         if remember_me:
-                            request.session.set_expiry(60 * 60 * 24 * 30)  # 30 днів
+                            request.session.set_expiry(1209600)
                         else:
-                            request.session.set_expiry(0)  # до закриття браузера
-
+                            request.session.set_expiry(0)
+                        if next_url:
+                            return redirect(next_url)
                         if role == 'student':
                             return redirect('student_dashboard')
                         else:
@@ -80,9 +83,11 @@ def unified_login(request):
             else:
                 messages.error(request, 'Invalid username or password.')
 
-    return render(request, 'unified_login.html')
+    return render(request, 'unified_login.html', {'next': request.GET.get('next', '')})
 
-
+def logout_view(request):
+    logout(request)
+    return redirect('unified_login')
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -166,6 +171,8 @@ def student_dashboard(request):
     }
     return render(request, 'student_dashboard.html', context)
 
+
+@login_required
 def teacher_dashboard(request):
     if not request.user.is_teacher:
         return redirect('student_dashboard')
@@ -185,29 +192,24 @@ def teacher_dashboard(request):
         'homeworks': homeworks,
     }
     return render(request, 'teacher_dashboard.html', context)
+
+
 @login_required
 def upload_submission(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id)
 
     if not request.user.is_student:
         return redirect('teacher_dashboard')
-
-    submission, created = Submission.objects.get_or_create(homework=homework, student=request.user)
+    try:
+        submission = Submission.objects.get(homework=homework, student=request.user)
+    except Submission.DoesNotExist:
+        submission = None
 
     if request.method == 'POST':
         if 'submit_button' not in request.POST:
             return redirect('student_dashboard')
         form = SubmissionForm(request.POST, instance=submission)
         files = request.FILES.getlist('files')
-
-        files_to_delete = [key for key in request.POST if key.startswith('delete_file_')]
-        for key in files_to_delete:
-            file_id = int(key.split('_')[-1])
-            try:
-                file_obj = SubmissionFile.objects.get(id=file_id, submission=submission)
-                file_obj.delete()
-            except SubmissionFile.DoesNotExist:
-                pass
 
         if form.is_valid():
             new_submission = form.save(commit=False)
@@ -216,6 +218,15 @@ def upload_submission(request, homework_id):
             new_submission.allow_resubmission = False
             new_submission.save()
 
+            files_to_delete = [key for key in request.POST if key.startswith('delete_file_')]
+            for key in files_to_delete:
+                file_id = int(key.split('_')[-1])
+                try:
+                    file_obj = SubmissionFile.objects.get(id=file_id, submission=new_submission)
+                    file_obj.delete()
+                except SubmissionFile.DoesNotExist:
+                    pass
+
             for f in files:
                 SubmissionFile.objects.create(submission=new_submission, file=f)
 
@@ -223,16 +234,13 @@ def upload_submission(request, homework_id):
     else:
         form = SubmissionForm(instance=submission)
 
-    existing_files = submission.files.all()
+    existing_files = submission.files.all()if submission else []
 
     return render(request, 'upload_submission.html', {
         'form': form,
         'homework': homework,
         'existing_files': existing_files,
     })
-
-
-
 
 
 @login_required
