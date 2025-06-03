@@ -5,6 +5,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.utils.timezone import localdate
 
 from djangoProject.settings import LOGIN_URL
 from .models import Homework, Submission, Subject, SubmissionFile
@@ -105,6 +106,7 @@ def register(request):
 
 @login_required
 def student_dashboard(request):
+    today = localdate()
     if not request.user.is_student:
         return redirect('teacher_dashboard')
 
@@ -168,6 +170,7 @@ def student_dashboard(request):
         'subjects': all_subjects,
         'selected_subject': selected_subject,
         'has_current_homework': len(current_homeworks) > 0,
+        'today': today,
     }
     return render(request, 'student_dashboard.html', context)
 
