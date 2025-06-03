@@ -87,6 +87,7 @@ def unified_login(request):
     return render(request, 'unified_login.html', {'next': request.GET.get('next', '')})
 
 def logout_view(request):
+    request.session.pop('homework_colors', None)
     logout(request)
     return redirect('unified_login')
 def register(request):
@@ -292,12 +293,20 @@ def homework_calendar_view(request):
     else:
         homeworks = []
 
-    homework_colors = {}
+    session_key = f'homework_colors_user_{request.user.id}'
+    print("SESSION BEFORE:", request.session.get(session_key, {}))
+    homework_colors = request.session.get(session_key, {})
+    updated = False
     for hw in homeworks:
-        if hw.id not in homework_colors:
-            homework_colors[hw.id] = get_random_dark_color()
-        hw.color = homework_colors[hw.id]
-
+        hw_id_str = str(hw.id)
+        if hw_id_str not in homework_colors:
+            homework_colors[hw_id_str] = get_random_dark_color()
+            updated = True
+        hw.color = homework_colors[hw_id_str]
+    if updated:
+        request.session[session_key] = homework_colors
+        request.session.modified = True
+        print("SESSION UPDATED:", homework_colors)
     return render(request, 'homework_calendar.html', {'homeworks': homeworks})
 
 

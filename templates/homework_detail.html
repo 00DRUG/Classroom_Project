@@ -2,22 +2,29 @@
 {% block content %}
 
 
-<div class="container">
-    <h2>{{ homework.title }}</h2>
-    <p><strong>Subject:</strong> {{ homework.subject }}</p>
-    <p><strong>Description:</strong> {{ homework.description }}</p>
-    <p><strong>Due Date:</strong> {{ homework.due_date }}</p>
-    <p><strong>Assigned by:</strong> {{ homework.teacher.get_full_name }}</p>
+    <div class="container">
+        <h2>{{ homework.title }}</h2>
+        <p><strong>Subject:</strong> {{ homework.subject }}</p>
+        <p><strong>Description:</strong> {{ homework.description }}</p>
+        <p><strong>Due Date:</strong> {{ homework.due_date }}</p>
+        <p><strong>Assigned by:</strong> {{ homework.teacher.get_full_name }}</p>
+        {% if homework.file %}
+            <p>
+                📎 <strong>Attached File:</strong>
+                <a href="{{ item.homework.file.url }}" download>
+                    {{ item.homework.file.name|cut:"homework_files/" }}
+                </a>
+            </p>
+        {% endif %}
+        {% if submission %}
+            <p><strong>Status:</strong> {{ submission.get_status_display }}</p>
+            <p><strong>Marks:</strong> {{ submission.marks }}</p>
+            <p><strong>Comments:</strong> {{ submission.comments }}</p>
+        {% else %}
+            <p><em>No submission yet.</em></p>
+        {% endif %}
 
-    {% if submission %}
-        <p><strong>Status:</strong> {{ submission.get_status_display }}</p>
-        <p><strong>Marks:</strong> {{ submission.marks }}</p>
-        <p><strong>Comments:</strong> {{ submission.comments }}</p>
-    {% else %}
-        <p><em>No submission yet.</em></p>
-    {% endif %}
-
-    <a href="{% url 'student_dashboard' %}" class="btn btn-secondary mt-3">← Back to Dashboard</a>
-</div>
+        <a href="{% url 'student_dashboard' %}" class="btn btn-secondary mt-3">← Back to Dashboard</a>
+    </div>
 
 {% endblock %}
